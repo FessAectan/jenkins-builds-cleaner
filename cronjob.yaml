@@ -1,0 +1,33 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: jenkins-builds-cleaner-cronjob
+spec:
+  schedule: "0 0 * * *"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          imagePullSecrets:
+            - name: docker.example.com
+          containers:
+          - name: jenkins-builds-cleaner
+            image: docker.example.com/go/jenkins-builds-cleaner:1
+            env:
+            - name: JENKINS_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: jenkins-builds-cleaner
+                  key: username
+            - name: JENKINS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: jenkins-builds-cleaner
+                  key: token
+            - name: JENKINS_HOSTNAME
+              valueFrom:
+                secretKeyRef:
+                  name: jenkins-builds-cleaner
+                  key: hostname
+          restartPolicy: OnFailure
